@@ -1,0 +1,31 @@
+{
+  "version": "0.2.0",
+  "configurations": [
+    {
+      "type": "node",
+      "request": "launch",
+      "name": "PoC - Debug seed",
+      "runtimeExecutable": "node",
+      "program": "${workspaceFolder}\\dist\\commands\\seed.js",
+      "cwd": "${workspaceFolder}",
+      "envFile": "${workspaceFolder}\\.env",
+      "preLaunchTask": "PoC - Build",
+      "console": "integratedTerminal",
+      "sourceMaps": true,
+      "skipFiles": ["<node_internals>/**", "${workspaceFolder}\\node_modules\\**"]
+    },
+    {
+      "type": "node",
+      "request": "launch",
+      "name": "PoC - Debug bridge",
+      "runtimeExecutable": "node",
+      "program": "${workspaceFolder}\\dist\\commands\\bridge.js",
+      "cwd": "${workspaceFolder}",
+      "envFile": "${workspaceFolder}\\.env",
+      "preLaunchTask": "PoC - Build",
+      "console": "integratedTerminal",
+      "sourceMaps": true,
+      "skipFiles": ["<node_internals>/**", "${workspaceFolder}\\node_modules\\**"]
+    }
+  ]
+}

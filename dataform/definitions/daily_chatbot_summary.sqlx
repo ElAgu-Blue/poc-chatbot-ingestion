@@ -1,0 +1,57 @@
+config {
+  type: "table",
+  schema: "chat_analytics",
+  description: "Mart diario deduplicado de interacciones del chatbot. Contiene PII.",
+  tags: ["chatbot", "daily"],
+  bigquery: {
+    partitionBy: "interactionDate",
+    clusterBy: ["motivo"]
+  }
+}
+
+WITH ranked AS (
+  SELECT
+    DATE(datetimeMetadata) AS interactionDate,
+    conversationId,
+    userEmail,
+    motivo,
+    razonamiento,
+    calidadAtencion,
+    resolucion,
+    comentario,
+    agenteId,
+    messagesCount,
+    durationSeconds,
+    closedAt,
+    occurredAt,
+    ingestedAt,
+    datetimeMetadata,
+    ROW_NUMBER() OVER (
+      PARTITION BY conversationId
+      ORDER BY closedAt DESC, occurredAt DESC, ingestedAt DESC
+    ) AS duplicateRank
+  FROM ${ref("evs_chat_conversations")}
+  WHERE status = 'COMPLETED'
+),
+deduplicated AS (
+  SELECT *
+  FROM ranked
+  WHERE duplicateRank = 1
+)
+SELECT
+  interactionDate,
+  motivo,
+  COUNT(*) AS completedConversations,
+  AVG(calidadAtencion) AS averageQuality,
+  AVG(resolucion) AS averageResolution,
+  COUNTIF(resolucion >= 5) / NULLIF(COUNT(resolucion), 0)
+    AS satisfactoryResolutionRate,
+  COUNTIF(calidadAtencion <= 3 OR resolucion <= 3) AS criticalCases,
+  AVG(durationSeconds) AS averageDurationSeconds,
+  ARRAY_AGG(DISTINCT userEmail IGNORE NULLS) AS participantEmails,
+  ARRAY_AGG(
+    STRUCT(userEmail, comentario, calidadAtencion, resolucion, closedAt)
+    IGNORE NULLS
+  ) AS participantCases
+FROM deduplicated
+GROUP BY interactionDate, motivo

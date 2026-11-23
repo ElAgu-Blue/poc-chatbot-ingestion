@@ -1,0 +1,26 @@
+{
+  "conversationId": "conv-b2b-001",
+  "action": "survey",
+  "survey": {
+    "calidadAtencion": 6,
+    "resolucion": 7,
+    "comentario": "La atención resolvió mi consulta.",
+    "agenteId": "b2b-agent",
+    "submittedAt": "2026-11-23T01:25:00.000Z"
+  },
+  "userEmail": "b2b.test@example.invalid",
+  "history": [
+    {
+      "id": "msg-b2b-001",
+      "role": "user",
+      "content": "¿Dónde veo las facturas de mi cuenta?",
+      "timestamp": "2026-11-23T01:20:00.000Z"
+    },
+    {
+      "id": "msg-b2b-002",
+      "role": "agent",
+      "content": "Puedes encontrarlas en el portal de clientes.",
+      "timestamp": "2026-11-23T01:21:00.000Z"
+    }
+  ]
+}

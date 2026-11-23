@@ -1,0 +1,122 @@
+services:
+  mongo:
+    image: mongo:7
+    container_name: poc-chatbot-mongo
+    ports:
+      - "27017:27017"
+    volumes:
+      - mongo-data:/data/db
+    environment:
+      MONGO_INITDB_DATABASE: oneblue_chat
+    healthcheck:
+      test: ["CMD", "mongosh", "--quiet", "--eval", "db.adminCommand('ping').ok"]
+      interval: 5s
+      timeout: 3s
+      retries: 20
+
+  localstack:
+    image: localstack/localstack:4.10
+    container_name: poc-chatbot-localstack
+    ports:
+      - "4566:4566"
+    environment:
+      SERVICES: sns,sqs
+      AWS_DEFAULT_REGION: us-east-1
+      DEBUG: "0"
+    volumes:
+      - localstack-data:/var/lib/localstack
+    healthcheck:
+      test: ["CMD", "curl", "-fsS", "http://localhost:4566/_localstack/health"]
+      interval: 5s
+      timeout: 3s
+      retries: 30
+
+  localstack-init:
+    image: localstack/localstack:4.10
+    container_name: poc-chatbot-localstack-init
+    depends_on:
+      localstack:
+        condition: service_healthy
+    environment:
+      AWS_DEFAULT_REGION: us-east-1
+      AWS_ACCESS_KEY_ID: test
+      AWS_SECRET_ACCESS_KEY: test
+      AWS_ENDPOINT_URL: http://localstack:4566
+    volumes:
+      - ".\\docker\\localstack-init.sh:/init/localstack-init.sh:ro"
+    entrypoint:
+      - /bin/sh
+      - -c
+      - tr -d '\r' < /init/localstack-init.sh > /tmp/localstack-init.sh && /bin/sh /tmp/localstack-init.sh
+#
+  #bfa:
+  #  build:
+  #    context: ..\bx-app-bfa-account
+  #    dockerfile: Dockerfile
+  #  container_name: poc-chatbot-bfa
+  #  environment:
+  #    PORT: "3001"
+  #    BX_LOG_LEVEL: info
+  #    ENVIRONMENT: local
+  #    MONGODB_HOST: mongodb://mongo:27017
+  #    MONGODB_DB_NAME: oneblue_chat
+  #    MAX_POOL_SIZE: "20"
+  #    SOCKET_TIMEOUT_MS: "5000"
+  #    MONGODB_USER_NAME: ""
+  #    MONGODB_PASSWORD: ""
+  #    GCP_PROJECT_ID: ${GCP_PROJECT_ID}
+  #    GCP_REGION: ${GCP_REGION:-us-central1}
+  #    GCP_SA_INTGR_BFA: ${GCP_SA_INTGR_BFA:-}
+  #    AWS_REGION: us-east-1
+  #    CHAT_EVENTS_TOPIC_ARN: arn:aws:sns:us-east-1:000000000000:topic-oneblue-chat-interactions
+  #    CHAT_EVENTS_AWS_REGION: us-east-1
+  #    CHAT_EVENTS_AWS_ENDPOINT: http://localstack:4566
+  #    CHAT_EVENTS_PUBLISH_MAX_ATTEMPTS: "3"
+  #    AWS_ACCESS_KEY_ID: test
+  #    AWS_SECRET_ACCESS_KEY: test
+  #  depends_on:
+  #    mongo:
+  #      condition: service_healthy
+  #    localstack-init:
+  #      condition: service_completed_successfully
+  #  ports:
+  #    - "${BFA_PORT:-3001}:3001"
+  #  healthcheck:
+  #    test:
+  #      - CMD
+  #      - wget
+  #      - --spider
+  #      - -q
+  #      - http://127.0.0.1:3001/health/liveness
+  #    interval: 5s
+  #    timeout: 3s
+  #    retries: 30
+#
+  #bff:
+  #  build:
+  #    context: ..\bx-bff-b2cc2x-oneblue
+  #    dockerfile: Dockerfile
+  #  container_name: poc-chatbot-bff
+  #  environment:
+  #    PORT: "3000"
+  #    BX_LOG_LEVEL: info
+  #    BFA_CHATBOT_URL: http://bfa:3001/v1
+  #  depends_on:
+  #    bfa:
+  #      condition: service_healthy
+  #  ports:
+  #    - "${BFF_PORT:-3000}:3000"
+  #  healthcheck:
+  #    test:
+  #      - CMD
+  #      - wget
+  #      - --spider
+  #      - -q
+  #      - http://127.0.0.1:3000/b2cc2x/oneblue/health/liveness
+  #    interval: 5s
+  #    timeout: 3s
+  #    retries: 30
+
+volumes:
+  mongo-data:
+  localstack-data:

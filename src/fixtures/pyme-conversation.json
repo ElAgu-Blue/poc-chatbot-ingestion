@@ -1,0 +1,19 @@
+{
+  "conversationId": "conv-pyme-001",
+  "agentId": "pyme-agent",
+  "message": "Necesito saber el estado de mi entrega",
+  "timestamp": "2026-11-23T01:10:00.000Z",
+  "userEmail": "pyme.test@example.invalid",
+  "history": [
+    {
+      "id": "msg-pyme-001",
+      "role": "agent",
+      "content": "Hola, ¿en qué puedo ayudarte?",
+      "timestamp": "2026-11-23T01:09:00.000Z"
+    }
+  ],
+  "queueInfo": {
+    "messagesInBatch": 1,
+    "debounceDelay": 250
+  }
+}

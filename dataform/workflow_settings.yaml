@@ -1,0 +1,5 @@
+dataformCoreVersion: 3
+defaultDatabase: bx-b2cc2x-dev
+defaultLocation: US
+defaultSchema: chat_analytics
+warehouse: bigquery
