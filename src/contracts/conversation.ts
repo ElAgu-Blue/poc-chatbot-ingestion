@@ -15,6 +15,8 @@ export const chatMessageRequestSchema = z.object({
   message: z.string().min(1),
   timestamp: isoDateTimeSchema,
   userEmail: z.email(),
+  motivo: z.string().min(1).optional(),
+  razonamiento: z.string().min(1).optional(),
   history: z.array(chatHistoryMessageSchema),
   queueInfo: z
     .object({

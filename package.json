@@ -13,8 +13,11 @@
     "simulate": "tsx src/infrastructure/http/simulation.server.ts",
     "seed": "tsx src/commands/seed.ts",
     "seed:reset": "tsx src/commands/seed.ts --reset",
+    "seed:demo": "tsx src/commands/seed-demo.ts",
+    "seed:demo:reset": "tsx src/commands/seed-demo.ts --reset",
     "bridge": "tsx src/commands/bridge.ts",
-    "bigquery:init": "tsx src/commands/bigquery-init.ts"
+    "bigquery:init": "tsx src/commands/bigquery-init.ts",
+    "export:mart-csv": "tsx src/commands/export-mart-csv.ts"
   },
   "dependencies": {
     "@aws-sdk/client-sns": "^3.922.0",

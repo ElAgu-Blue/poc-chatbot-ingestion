@@ -29,7 +29,7 @@ export class CompleteConversation {
       ? new Date(Math.min(...timestamps))
       : conversation.createdAt;
     const lastAt = timestamps.length
-      ? new Date(Math.max(...timestamps))
+      ? new Date(Math.max(...timestamps, closedAt.getTime()))
       : closedAt;
     const durationSeconds = Math.max(
       0,

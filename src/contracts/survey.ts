@@ -12,6 +12,8 @@ export const surveySchema = z.object({
 export const submitChatSurveyRequestSchema = z.object({
   conversationId: z.string().min(1),
   action: z.literal("survey"),
+  motivo: z.string().min(1).optional(),
+  razonamiento: z.string().min(1).optional(),
   survey: surveySchema,
   userEmail: z.email().optional(),
   history: z.array(chatHistoryMessageSchema).optional(),

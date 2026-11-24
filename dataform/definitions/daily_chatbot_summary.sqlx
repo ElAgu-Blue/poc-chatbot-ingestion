@@ -22,6 +22,7 @@ WITH ranked AS (
     agenteId,
     messagesCount,
     durationSeconds,
+    status,
     closedAt,
     occurredAt,
     ingestedAt,
@@ -31,7 +32,6 @@ WITH ranked AS (
       ORDER BY closedAt DESC, occurredAt DESC, ingestedAt DESC
     ) AS duplicateRank
   FROM ${ref("evs_chat_conversations")}
-  WHERE status = 'COMPLETED'
 ),
 deduplicated AS (
   SELECT *
@@ -41,7 +41,27 @@ deduplicated AS (
 SELECT
   interactionDate,
   motivo,
-  COUNT(*) AS completedConversations,
+  COUNT(*) AS totalConversations,
+  COUNTIF(status = 'COMPLETED') AS completedConversations,
+  COUNTIF(status = 'OPEN') AS openConversations,
+  COUNTIF(status = 'ABANDONED') AS abandonedConversations,
+  SAFE_DIVIDE(COUNTIF(status = 'COMPLETED'), COUNT(*)) AS completionRate,
+  COUNTIF(calidadAtencion IS NOT NULL OR resolucion IS NOT NULL)
+    AS surveySubmittedConversations,
+  SAFE_DIVIDE(
+    COUNTIF(
+      status = 'COMPLETED'
+      AND (calidadAtencion IS NOT NULL OR resolucion IS NOT NULL)
+    ),
+    COUNTIF(status = 'COMPLETED')
+  ) AS surveyComplianceRate,
+  COUNTIF(calidadAtencion IS NOT NULL OR resolucion IS NOT NULL)
+    AS ratedConversations,
+  COUNTIF(comentario IS NOT NULL) AS withComments,
+  COUNTIF(
+    (calidadAtencion IS NOT NULL OR resolucion IS NOT NULL)
+    AND comentario IS NULL
+  ) AS withoutComments,
   AVG(calidadAtencion) AS averageQuality,
   AVG(resolucion) AS averageResolution,
   COUNTIF(resolucion >= 5) / NULLIF(COUNT(resolucion), 0)
@@ -50,7 +70,14 @@ SELECT
   AVG(durationSeconds) AS averageDurationSeconds,
   ARRAY_AGG(DISTINCT userEmail IGNORE NULLS) AS participantEmails,
   ARRAY_AGG(
-    STRUCT(userEmail, comentario, calidadAtencion, resolucion, closedAt)
+    STRUCT(
+      userEmail,
+      status,
+      comentario,
+      calidadAtencion,
+      resolucion,
+      closedAt
+    )
     IGNORE NULLS
   ) AS participantCases
 FROM deduplicated

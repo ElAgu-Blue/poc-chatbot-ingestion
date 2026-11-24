@@ -56,6 +56,8 @@ export class MongoConversationRepository implements ConversationRepository {
       userEmail: request.userEmail,
       updatedAt: now,
       status: "OPEN",
+      ...(request.motivo ? { motivo: request.motivo } : {}),
+      ...(request.razonamiento ? { razonamiento: request.razonamiento } : {}),
     };
     if (request.queueInfo) {
       setFields.queueInfo = request.queueInfo;
@@ -118,6 +120,8 @@ export class MongoConversationRepository implements ConversationRepository {
       updatedAt: new Date(),
     };
     if (request.userEmail) setFields.userEmail = request.userEmail;
+    if (request.motivo) setFields.motivo = request.motivo;
+    if (request.razonamiento) setFields.razonamiento = request.razonamiento;
     if (request.history?.length) {
       setFields.history = deduplicateHistory([
         ...existing.history,

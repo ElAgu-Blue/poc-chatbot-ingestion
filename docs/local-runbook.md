@@ -88,6 +88,45 @@ docker compose exec localstack awslocal sqs get-queue-attributes `
 `seed:reset` sólo elimina las conversaciones fixture `conv-pyme-001` y
 `conv-b2b-001`; no toca conversaciones reales o creadas con otros IDs.
 
+### Dataset sintético para dashboards
+
+Genera 84 conversaciones deterministas distribuidas en 21 días: 70 completadas
+y 14 abiertas, con motivos, agentes PyME/B2B, comentarios opcionales y
+puntuaciones de 1 a 7.
+
+```powershell
+npm run seed:demo:reset
+```
+
+Personalice volumen, rango de fechas o fecha final:
+
+```powershell
+npm run seed:demo:reset -- --count=120 --days=30 --end-date=2026-11-23
+```
+
+`seed:demo:reset` sólo elimina IDs con prefijo `demo-chat-`. El comando normal
+`npm run seed:demo` conserva la idempotencia y no republica cierres existentes.
+
+### Exportar el mart para Looker sin BigQuery
+
+Cuando no se puedan crear o insertar datos en BigQuery, genere el mismo modelo
+agregado desde MongoDB:
+
+```powershell
+npm run export:mart-csv
+```
+
+Salida:
+
+```text
+exports\daily_chatbot_summary.csv
+```
+
+El archivo replica las columnas y métricas de
+`daily_chatbot_summary.sqlx`; `participantEmails` y `participantCases` se
+serializan como JSON dentro de sus columnas CSV. La carpeta `exports/` está
+ignorada por Git.
+
 ### MongoDB Compass
 
 Desde una Compass instalada en el host Windows, conectarse con:
